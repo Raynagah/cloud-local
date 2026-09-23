@@ -1,0 +1,160 @@
+version: '3.8'
+
+networks:
+  pedidos360-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+
+  # 1. Base de Datos (PostgreSQL)
+  ms-bd-cloud:
+    image: postgres:15-alpine
+    container_name: ms-bd-cloud
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./ms-bd-cloud/init-dbs.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network
+
+  # 2. Microservicio Usuarios
+  ms-usuarios-cloud:
+    build:
+      context: ./ms-usuarios-cloud
+    container_name: ms-usuarios-cloud
+    ports:
+      - "8081:8081"
+    environment:
+      AZURE_TENANT_ID: "78b145ef-56b9-4397-b87c-27b242a9fce5"
+      DB_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_usuarios"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_usuarios"
+      SPRING_DATASOURCE_USERNAME: "admin"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+    depends_on:
+      ms-bd-cloud:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network
+
+  # 3. Microservicio Producto
+  ms-producto:
+    build:
+      context: ./cloud-backend-producto
+    container_name: ms-producto
+    ports:
+      - "8082:8082"
+    environment:
+      AZURE_TENANT_ID: "78b145ef-56b9-4397-b87c-27b242a9fce5"
+      DB_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_productos"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_productos"
+      SPRING_DATASOURCE_USERNAME: "admin"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+    depends_on:
+      ms-usuarios-cloud:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network
+
+  # 4. Microservicio Carrito
+  ms-carrito:
+    build:
+      context: ./cloud-backend-carrito
+    container_name: ms-carrito
+    ports:
+      - "8083:8083"
+    environment:
+      AZURE_TENANT_ID: "78b145ef-56b9-4397-b87c-27b242a9fce5"
+      DB_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_carrito"
+      DB_USERNAME: "admin"
+      DB_PASSWORD: "admin"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://ms-bd-cloud:5432/db_carrito"
+      SPRING_DATASOURCE_USERNAME: "admin"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+      PRODUCTO_API_URL: "http://ms-producto:8082/api/v1/productos"
+    depends_on:
+      ms-producto:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network
+
+  # 5. Backend For Frontend (BFF)
+  ms-bff:
+    build:
+      context: ./cloud-backend-bff
+    container_name: ms-bff
+    ports:
+      - "8084:8084"
+    environment:
+      AZURE_TENANT_ID: "78b145ef-56b9-4397-b87c-27b242a9fce5"
+      MS_PRODUCTO_URL: "http://ms-producto:8082"
+      MS_CARRITO_URL: "http://ms-carrito:8083"
+      MS_USUARIO_URL: "http://ms-usuarios-cloud:8081"
+    depends_on:
+      ms-producto:
+        condition: service_healthy
+      ms-carrito:
+        condition: service_healthy
+      ms-usuarios-cloud:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network
+
+  # 6. Frontend React
+  ms-frontend:
+    build:
+      context: ./cloud-frontend
+      args:
+        VITE_REDIRECT_URI: "http://localhost"
+        VITE_BFF_URL: "http://localhost:8084/api/v1/bff"
+    container_name: ms-frontend
+    ports:
+      - "80:80"
+    environment:
+      VITE_REDIRECT_URI: "http://localhost"
+      VITE_BFF_URL: "http://localhost:8084/api/v1/bff"
+    depends_on:
+      ms-bff:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos360-network

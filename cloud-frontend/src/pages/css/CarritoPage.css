@@ -1,0 +1,164 @@
+/* Fondo general estilo ML */
+.cart-page-bg {
+    background-color: #ebebeb; /* Gris claro de fondo */
+    min-height: 100vh;
+    padding: 30px 20px;
+}
+
+.cart-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-header h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin: 0;
+}
+
+/* Layout de 2 columnas */
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    align-items: start; /* Importante para que el sticky funcione */
+}
+
+/* Tarjeta individual de producto */
+.cart-item-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cart-item-info {
+    display: flex;
+    gap: 20px;
+}
+
+.cart-item-image-placeholder {
+    width: 80px;
+    height: 80px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.cart-item-details h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.cart-item-ref {
+    color: #999;
+    font-size: 0.85rem;
+    margin: 0 0 15px 0;
+}
+
+.cart-item-delete {
+    background: none;
+    border: none;
+    color: #3483fa;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.cart-item-delete:hover {
+    color: #2968c8;
+}
+
+/* Precios y cantidades del item */
+.cart-item-pricing {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.cart-item-qty-box {
+    border: 1px solid #e6e6e6;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.cart-item-price {
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #333;
+}
+
+/* Tarjeta del Resumen (Derecha) */
+.cart-summary-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+    position: sticky;
+    top: 24px; /* Se queda fijo al hacer scroll */
+}
+
+.cart-summary-card h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.summary-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.total-row {
+    color: #333;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-top: 20px;
+}
+
+.cart-empty-actions {
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .cart-layout {
+        grid-template-columns: 1fr; /* Una sola columna en celulares/tablets */
+    }
+    .cart-item-card {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .cart-item-pricing {
+        justify-content: space-between;
+        width: 100%;
+    }
+}

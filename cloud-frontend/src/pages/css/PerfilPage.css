@@ -1,0 +1,210 @@
+/* Contenedor para centrar el perfil en la pantalla */
+.profile-page__wrapper {
+    /* TRUCO HORIZONTAL */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+
+    /* TRUCO VERTICAL: Absorbe los espacios blancos superior e inferior */
+    margin-top: -40px;    /* Ajusta este número si el espacio de arriba es mayor o menor */
+    margin-bottom: -40px; /* Ajusta este número si el espacio de abajo es mayor o menor */
+
+    /* Ajustamos el alto para no crear un scroll doble (100vh - alto aproximado de tu navbar) */
+    min-height: calc(100vh - 60px); 
+    
+    background-image: url('../../assets/FondoPagPerfil.png'); 
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; 
+    
+    /* Centramos la tarjeta */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Subimos el padding top para compensar el margen negativo y que la tarjeta no quede muy pegada arriba */
+    padding: 60px 20px 40px 20px; 
+    box-sizing: border-box;
+}
+
+/* 2. LA TARJETA DEL PERFIL */
+.profile-card {
+    max-width: 700px; /* Movimos el límite de ancho aquí */
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(122, 40, 203, 0.1);
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+}
+
+.profile-card__avatar-wrapper {
+    position: absolute;
+    bottom: -60px; 
+    left: 40px;
+    position: relative; /* Para que el botoncito se posicione relativo a este contenedor */
+}
+
+/* 3. EL BANNER DE SAITAMA */
+.profile-card__banner {
+    height: 180px;
+    background-image: url('../../assets/BannerPagPerfil.png'); 
+    
+    /* Ajuste para que Saitama no salga cortado */
+    background-size: cover; 
+    /* Cambiamos 'center' por 'center 20%' o 'top' para enfocar la parte superior de la imagen (la cabeza) */
+    background-position: center 25%; 
+    
+    /* Si la opción de arriba no te gusta, borra las dos líneas anteriores y usa esto:
+       background-size: contain;
+       background-repeat: no-repeat;
+       background-color: #000;  (Un color que combine por si quedan bordes vacíos a los lados)
+    */
+    
+    position: relative;
+}
+
+/* Círculo superpuesto para el Avatar */
+.profile-card__avatar {
+    width: 120px;
+    height: 120px;
+    background-color: #d5b8ff;
+    border: 4px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: absolute;
+    bottom: -60px;
+    left: 40px;
+}
+
+.profile-card__add-photo-btn {
+    position: absolute;
+    bottom: -50px; /* Ajustado al borde inferior del avatar */
+    left: 120px;   /* Ajustado al borde derecho del avatar */
+    background-color: #ff1053; /* Fucsia vibrante */
+    color: white;
+    border: 3px solid #ffffff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    font-size: 1.1rem;
+    padding: 0;
+}
+
+.profile-card__add-photo-btn:hover {
+    transform: scale(1.1);
+    background-color: #d00b42;
+}
+
+/* Contenedor de la información */
+.profile-card__content {
+    padding: 80px 40px 40px 40px; /* Padding top grande para compensar el avatar */
+}
+
+.profile-card__title {
+    font-size: 2rem;
+    color: #1a1525;
+    margin: 0 0 5px 0;
+    font-weight: 800;
+}
+
+.profile-card__subtitle {
+    color: #7a28cb;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 30px 0;
+}
+
+/* Grilla para los datos del usuario */
+.profile-card__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Cada bloque de información */
+.profile-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #7a28cb; /* Detalle de color al costado */
+    transition: transform 0.2s ease;
+}
+
+.profile-item:hover {
+    transform: translateX(5px);
+}
+
+.profile-item__label {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.profile-item__value {
+    font-size: 1.1rem;
+    color: #2b2b2b;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Adaptación para celulares */
+@media (max-width: 600px) {
+    .profile-card__avatar {
+        left: 50%;
+        transform: translateX(-50%); /* Centra el avatar en móvil */
+    }
+    .profile-card__add-photo-btn {
+        left: calc(50% + 25px); /* Ajusta el botoncito en móvil */
+    }
+    .profile-card__content {
+        padding-top: 80px;
+        text-align: center;
+    }
+    .profile-item {
+        border-left: none;
+        border-bottom: 4px solid #7a28cb; /* Cambia el borde hacia abajo */
+    }
+}
+
+/* --- Botones de Acción --- */
+.profile-card__actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end; /* Alinea el botón a la derecha */
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+}
+
+.profile-card__edit-btn {
+    background-color: #7a28cb; /* Morado principal */
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profile-card__edit-btn:hover {
+    background-color: #5c1c9c;
+    transform: translateY(-2px);
+}

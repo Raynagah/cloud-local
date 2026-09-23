@@ -1,0 +1,40 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: bff
+
+  security: 
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/
+          tenant-id: 78b145ef-56b9-4397-b87c-27b242a9fce5
+
+# CONFIGURACIÓN DE RUTAS INTERNAS PARA OPENFEIGN
+# Usamos variables de entorno para apuntar a la red de Docker en producción
+# o localhost para desarrollo local.
+microservicios:
+  producto:
+    url: ${MS_PRODUCTO_URL:https://peq4cfx9b1.execute-api.us-east-1.amazonaws.com/desarrolloprocarr}
+  carrito:
+    url: ${MS_CARRITO_URL:https://bhpifynk8i.execute-api.us-east-1.amazonaws.com/desarrollocarrito}
+  usuario:
+    url: ${MS_USUARIO_URL:https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1}
+
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    use-root-path: true
+    path: /swagger-ui.html
+  api-docs:
+    path: /api/bff/v1/api-docs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
