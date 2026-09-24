@@ -101,7 +101,7 @@ public class CarritoService {
     }
 
     // =========================================================================
-    // MÉTODOS PRIVADOS AUXILIARES (Mantienen igual que tu versión)
+    // MÉTODOS PRIVADOS AUXILIARES
     // =========================================================================
 
     private Carrito obtenerOCrearCarrito(String usuarioId) {
@@ -112,7 +112,7 @@ public class CarritoService {
                             .estado("ACTIVO")
                             .total(BigDecimal.ZERO)
                             .fechaCreacion(LocalDateTime.now())
-                            .items(new ArrayList<>()) // <-- Asigna explícitamente una lista vacía
+                            .items(new ArrayList<>())
                             .build();
                     return carritoRepository.save(nuevoCarrito);
                 });
