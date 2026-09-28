@@ -43,3 +43,13 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /api/ordenes/v1/api-docs
+
+# ACTUATOR HEALTH (Para verificar healthcheck)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
