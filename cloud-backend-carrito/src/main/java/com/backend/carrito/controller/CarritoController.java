@@ -21,10 +21,10 @@ public class CarritoController {
     public ResponseEntity<CarritoDTO> agregarItem(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody ItemCarritoRequestDTO dto) {
-        
-        String usuarioId = jwt.getSubject(); 
+
+        String usuarioId = jwt.getSubject();
         String tokenStr = jwt.getTokenValue(); // <-- Extraemos el token string para MS-Producto
-        
+
         CarritoDTO carrito = carritoService.agregarItem(usuarioId, dto, tokenStr);
         return ResponseEntity.ok(carrito);
     }
@@ -32,7 +32,7 @@ public class CarritoController {
     @GetMapping
     public ResponseEntity<CarritoDTO> obtenerCarritoActivo(@AuthenticationPrincipal Jwt jwt) {
         String usuarioId = jwt.getSubject();
-        
+
         CarritoDTO carrito = carritoService.obtenerCarritoActivo(usuarioId);
         return ResponseEntity.ok(carrito);
     }
@@ -41,20 +41,20 @@ public class CarritoController {
     public ResponseEntity<Void> vaciarCarrito(@AuthenticationPrincipal Jwt jwt) {
         String usuarioId = jwt.getSubject();
         String tokenStr = jwt.getTokenValue(); // <-- Extraemos el token string
-        
+
         carritoService.vaciarCarrito(usuarioId, tokenStr);
         return ResponseEntity.noContent().build();
     }
 
-    // NUEVO: Endpoint para eliminar un solo ítem del carrito
+    //Endpoint para eliminar un solo ítem del carrito
     @DeleteMapping("/items/{productoId}")
     public ResponseEntity<CarritoDTO> eliminarItem(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable Long productoId) {
-        
+
         String usuarioId = jwt.getSubject();
         String tokenStr = jwt.getTokenValue();
-        
+
         CarritoDTO carrito = carritoService.eliminarItem(usuarioId, productoId, tokenStr);
         return ResponseEntity.ok(carrito);
     }

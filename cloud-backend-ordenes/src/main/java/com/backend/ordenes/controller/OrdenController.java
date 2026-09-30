@@ -27,8 +27,8 @@ public class OrdenController {
     public ResponseEntity<Orden> crearOrden(
             @RequestBody OrdenRequestDTO requestDTO,
             @AuthenticationPrincipal Jwt jwt) {
-        
-        String usuarioCorreo = jwt.getClaimAsString("preferred_username");
+
+        String usuarioCorreo = jwt.getSubject();
         if (usuarioCorreo == null) {
             usuarioCorreo = jwt.getClaimAsString("email");
         }

@@ -69,6 +69,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network
 
@@ -100,6 +101,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network
 
@@ -127,13 +129,12 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      ms-producto:
-        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network
 
@@ -165,6 +166,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network
 
@@ -195,6 +197,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network
 
