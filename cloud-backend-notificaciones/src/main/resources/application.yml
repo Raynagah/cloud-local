@@ -1,0 +1,58 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: ms-notificaciones
+
+  # CONFIGURACIÓN DE SEGURIDAD (AZURE AD)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/
+          tenant-id: 78b145ef-56b9-4397-b87c-27b242a9fce5
+
+  # CONFIGURACIÓN DE BASE DE DATOS POSTGRESQL
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/db_notificaciones}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+
+  # CONFIGURACIÓN DE RABBITMQ
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
+
+  # CONFIGURACIÓN DE JPA E HIBERNATE
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+# PROPIEDADES PERSONALIZADAS DE RABBITMQ PARA ESTE MICROSERVICIO
+app:
+  rabbitmq:
+    exchange: e.ordenes
+    queue:
+      notificaciones: q.notificaciones
+    routingkey:
+      orden-creada: rk.orden.creada
+
+# CONFIGURACIÓN DE SWAGGER / SPRINGDOC
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    use-root-path: true
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  api-docs:
+    path: /api/notificaciones/v3/api-docs
