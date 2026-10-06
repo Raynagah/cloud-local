@@ -35,6 +35,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+# CONFIGURACIÓN DE LOGS PARA SLF4J / LOMBOK
+logging:
+  level:
+    root: INFO
+    com.backend.ordenes: INFO
+
 # SWAGGER
 springdoc:
   show-actuator: true

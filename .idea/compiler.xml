@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="bff" />
+        <module name="producto" />
+        <module name="notificaciones" />
+        <module name="ordenes" />
+        <module name="ms-carrito" />
+      </profile>
+      <profile name="Annotation profile for usuarios" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="usuarios" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="bff" options="-parameters" />
+      <module name="ms-carrito" options="-parameters" />
+      <module name="notificaciones" options="-parameters" />
+      <module name="ordenes" options="-parameters" />
+      <module name="producto" options="-parameters" />
+      <module name="usuarios" options="-parameters" />
+    </option>
+  </component>
+</project>

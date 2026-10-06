@@ -26,7 +26,10 @@ public class CarritoService {
     private final ProductoClient productoClient;
 
     @Transactional
-    public CarritoDTO agregarItem(String usuarioId, ItemCarritoRequestDTO dto, String token) {
+    public CarritoDTO agregarItem(String usuarioId, String usuarioNombre, ItemCarritoRequestDTO dto, String token) {
+        log.info("El usuario {} ({}) está intentando agregar el producto ID {} a su carrito", usuarioNombre, usuarioId,
+                dto.productoId());
+
         // 1. Restar stock en MS-Productos a través de AWS API Gateway
         productoClient.actualizarStock(dto.productoId(), -dto.cantidad(), token);
 
@@ -40,6 +43,8 @@ public class CarritoService {
         if (itemExistente.isPresent()) {
             ItemCarrito item = itemExistente.get();
             item.setCantidad(item.getCantidad() + dto.cantidad());
+            log.info("Actualizada cantidad del producto ID {} en el carrito del usuario {}", dto.productoId(),
+                    usuarioNombre);
         } else {
             ItemCarrito nuevoItem = ItemCarrito.builder()
                     .carrito(carrito)
@@ -48,6 +53,7 @@ public class CarritoService {
                     .precioUnitario(dto.precioUnitario())
                     .build();
             carrito.getItems().add(nuevoItem);
+            log.info("Nuevo producto ID {} agregado al carrito del usuario {}", dto.productoId(), usuarioNombre);
         }
 
         recalcularTotal(carrito);
@@ -61,7 +67,9 @@ public class CarritoService {
     }
 
     @Transactional
-    public void vaciarCarrito(String usuarioId, String token) {
+    public void vaciarCarrito(String usuarioId, String usuarioNombre, String token) {
+        log.info("El usuario {} ({}) ha solicitado vaciar su carrito manualmente", usuarioNombre, usuarioId);
+
         carritoRepository.findByUsuarioIdAndEstado(usuarioId, "ACTIVO").ifPresent(carrito -> {
             // 1. Devolver el stock de todos los items al MS-Productos (borrado manual)
             for (ItemCarrito item : carrito.getItems()) {
@@ -72,11 +80,14 @@ public class CarritoService {
             carrito.getItems().clear();
             carrito.setTotal(BigDecimal.ZERO);
             carritoRepository.save(carrito);
+            log.info("Carrito vaciado manualmente con éxito para el usuario {}", usuarioNombre);
         });
     }
 
     @Transactional
-    public CarritoDTO eliminarItem(String usuarioId, Long productoId, String token) {
+    public CarritoDTO eliminarItem(String usuarioId, String usuarioNombre, Long productoId, String token) {
+        log.info("El usuario {} ({}) solicitó eliminar el producto ID {} de su carrito", usuarioNombre, usuarioId,
+                productoId);
         Carrito carrito = obtenerOCrearCarrito(usuarioId);
 
         Optional<ItemCarrito> itemExistente = carrito.getItems().stream()
@@ -93,6 +104,7 @@ public class CarritoService {
             carrito.getItems().remove(item);
 
             recalcularTotal(carrito);
+            log.info("Producto ID {} eliminado exitosamente del carrito del usuario {}", productoId, usuarioNombre);
             return convertirADTO(carritoRepository.save(carrito));
         }
 
@@ -101,17 +113,19 @@ public class CarritoService {
 
     // MÉTODO ASÍNCRONO VIA RABBITMQ: Vaciar carrito tras concretarse la orden
     @Transactional
-    public void vaciarCarritoPorUsuario(String usuarioCorreo) {
-        log.info("Vaciando carrito para el usuario: {}", usuarioCorreo);
+    public void vaciarCarritoPorUsuario(String usuarioId, String usuarioNombre) {
+        log.info("Orden creada recibida. Vaciando carrito automáticamente para el usuario: {} ({})", usuarioNombre,
+                usuarioId);
 
-        // Busca el carrito ACTIVO del usuario utilizando el identificador/correo
-        carritoRepository.findByUsuarioIdAndEstado(usuarioCorreo, "ACTIVO").ifPresentOrElse(carrito -> {
+        // Busca el carrito ACTIVO del usuario utilizando el identificador (OID)
+        carritoRepository.findByUsuarioIdAndEstado(usuarioId, "ACTIVO").ifPresentOrElse(carrito -> {
             carrito.getItems().clear();
             carrito.setTotal(BigDecimal.ZERO);
             carritoRepository.save(carrito);
-            log.info("Carrito vaciado exitosamente para el usuario: {}", usuarioCorreo);
+            log.info("Carrito vaciado exitosamente tras compra para el usuario: {}", usuarioNombre);
         }, () -> {
-            log.warn("No se encontró carrito activo para el usuario: {}", usuarioCorreo);
+            log.warn("No se encontró carrito activo para el usuario: {} ({}) al procesar el evento de RabbitMQ",
+                    usuarioNombre, usuarioId);
         });
     }
 
@@ -148,12 +162,12 @@ public class CarritoService {
     private CarritoDTO convertirADTO(Carrito carrito) {
         var itemsDTO = carrito.getItems().stream()
                 .map(item -> new ItemCarritoDTO(
-                item.getId(),
-                item.getProductoId(),
-                item.getCantidad(),
-                item.getPrecioUnitario(),
-                item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad()))
-        )).toList();
+                        item.getId(),
+                        item.getProductoId(),
+                        item.getCantidad(),
+                        item.getPrecioUnitario(),
+                        item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad()))))
+                .toList();
 
         return new CarritoDTO(
                 carrito.getId(),
@@ -161,7 +175,6 @@ public class CarritoService {
                 carrito.getFechaCreacion(),
                 carrito.getTotal(),
                 carrito.getEstado(),
-                itemsDTO
-        );
+                itemsDTO);
     }
 }

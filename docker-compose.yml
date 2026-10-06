@@ -173,7 +173,39 @@ services:
     networks:
       - pedidos360-network
 
-  # 7. Backend For Frontend (BFF)
+  # 7. Microservicio Notificaciones
+  ms-notificaciones:
+    build:
+      context: ./cloud-backend-notificaciones
+    container_name: ms-notificaciones
+    ports:
+      - "8086:8086"
+    environment:
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-78b145ef-56b9-4397-b87c-27b242a9fce5}
+      DB_URL: ${DB_URL_NOTIFICACIONES:-jdbc:postgresql://ms-bd-cloud:5432/db_notificaciones}
+      DB_USERNAME: ${DB_USER:-admin}
+      DB_PASSWORD: ${DB_PASS:-admin}
+      SPRING_DATASOURCE_URL: ${DB_URL_NOTIFICACIONES:-jdbc:postgresql://ms-bd-cloud:5432/db_notificaciones}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS:-admin}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
+    depends_on:
+      ms-bd-cloud:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
+    networks:
+      - pedidos360-network
+
+  # 8. Backend For Frontend (BFF)
   ms-bff:
     build:
       context: ./cloud-backend-bff
@@ -186,6 +218,7 @@ services:
       MS_CARRITO_URL: "http://ms-carrito:8083"
       MS_USUARIO_URL: "http://ms-usuarios-cloud:8081"
       MS_ORDENES_URL: "http://ms-ordenes:8085"
+      MS_NOTIFICACIONES_URL: "http://ms-notificaciones:8086"
     depends_on:
       ms-producto:
         condition: service_healthy
@@ -194,6 +227,8 @@ services:
       ms-usuarios-cloud:
         condition: service_healthy
       ms-ordenes:
+        condition: service_healthy
+      ms-notificaciones:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1"]
@@ -204,7 +239,7 @@ services:
     networks:
       - pedidos360-network
 
-  # 8. Frontend React
+  # 9. Frontend React
   ms-frontend:
     build:
       context: ./cloud-frontend
