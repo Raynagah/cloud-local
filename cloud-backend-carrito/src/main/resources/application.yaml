@@ -39,3 +39,14 @@ spring:
 producto:
   api:
     url: ${PRODUCTO_API_URL:http://ms-producto:8082/api/v1/productos}
+  
+logging:
+  level:
+    # Autorizacion: un nivel bajo es un riesgo, no solo ruido.
+    org.springframework.security: INFO
+    com.lambda.validador: INFO
+    # AWSLambdaUtils registra el evento ENTERO en INFO, y el evento del authorizer
+    # lleva el token en claro dos veces: en "identitySource" y en
+    # "headers.authorization". Con este nivel, cada peticion deja un JWT
+    # reutilizable escrito en CloudWatch Logs.
+    org.springframework.cloud.function: WARN
