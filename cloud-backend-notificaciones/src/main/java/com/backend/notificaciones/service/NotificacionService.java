@@ -1,5 +1,6 @@
 package com.backend.notificaciones.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -28,8 +29,9 @@ public class NotificacionService {
                 .ordenId(evento.getOrdenId())
                 .usuarioCorreo(evento.getUsuarioCorreo())
                 .titulo("¡Orden #" + evento.getOrdenId() + " Creada con Éxito!")
-                .mensaje(
-                        "Hola, tu orden por un total de $" + evento.getTotal() + " ha sido recibida y está en proceso.")
+                .mensaje("Hola, tu orden por un total de $" + evento.getTotal() + " ha sido recibida y está en proceso.")
+                .fechaCreacion(LocalDateTime.now())
+                .leido(false)
                 .build();
 
         notificacionRepository.save(notificacion);

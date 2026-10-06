@@ -16,11 +16,13 @@ public class NotificacionEventListener {
 
     private final NotificacionService notificacionService;
 
-    @RabbitListener(queues = "${app.rabbitmq.queue.notificaciones:q.notificaciones}")
+    @RabbitListener(queues = "${app.rabbitmq.queue.notificaciones:q.enviar-notificacion}")
     public void manejarOrdenCreada(OrdenCreadaEvent event) {
         log.info("Evento OrdenCreada recibido en ms-notificaciones para la orden ID: {}", event.getOrdenId());
-        if (event.getUsuarioCorreo() != null) {
+        if (event.getUsuarioCorreo() != null && !event.getUsuarioCorreo().isBlank()) {
             notificacionService.crearNotificacionDesdeOrden(event);
+        } else {
+            log.warn("El evento para la orden ID {} no posee usuarioCorreo válido.", event.getOrdenId());
         }
     }
 }

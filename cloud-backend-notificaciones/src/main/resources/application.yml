@@ -29,22 +29,19 @@ spring:
 
   # CONFIGURACIÓN DE JPA E HIBERNATE
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
     show-sql: true
 
 # PROPIEDADES PERSONALIZADAS DE RABBITMQ PARA ESTE MICROSERVICIO
 app:
   rabbitmq:
-    exchange: e.ordenes
+    exchange: pedidos.exchange
     queue:
-      notificaciones: q.notificaciones
+      notificaciones: q.enviar-notificacion
     routingkey:
-      orden-creada: rk.orden.creada
+      orden-creada: pedido.creado
 
 # CONFIGURACIÓN DE SWAGGER / SPRINGDOC
 springdoc:

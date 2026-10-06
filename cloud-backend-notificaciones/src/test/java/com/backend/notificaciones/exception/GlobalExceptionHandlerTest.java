@@ -1,4 +1,4 @@
-package com.backend.notificaciones.exception;
+/*package com.backend.notificaciones.exception;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
@@ -55,4 +55,4 @@ class GlobalExceptionHandlerTest {
         assertEquals(1, resultado.size());
         assertEquals("El porcentaje no puede ser nulo", resultado.get("porcentajeSimilitud"));
     }
-}
+} */

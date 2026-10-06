@@ -69,3 +69,19 @@ export const eliminarItemCarrito = async (productoId) => {
 export const vaciarCarritoBackend = async () => {
     return await apiClient.delete('/carritos');
 };
+// --- ÓRDENES ---
+export const crearOrden = async (items) => {
+    return await apiClient.post('/ordenes/checkout', { items });
+};
+// --- NOTIFICACIONES ---
+export const getNotificaciones = async () => {
+    return await apiClient.get('/notificaciones');
+};
+
+export const marcarNotificacionLeida = async (id) => {
+    return await apiClient.put(`/notificaciones/${id}/leer`);
+};
+
+export const eliminarNotificacion = async (id) => {
+    return await apiClient.delete(`/notificaciones/${id}`);
+};

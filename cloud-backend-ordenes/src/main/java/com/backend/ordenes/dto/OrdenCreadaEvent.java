@@ -1,4 +1,4 @@
-package com.backend.carrito.dto; // O com.backend.carrito.dto según el microservicio
+package com.backend.ordenes.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class OrdenCreadaEvent implements Serializable {
     @JsonProperty ("orden_id")
     private Long ordenId;
-
+    
     private String usuarioId;       // Azure Subject/OID (ej: QUuWl6E3O...) -> Usado para BD
     private String usuarioNombre;   // Nombre (ej: "Juan Pérez") -> Usado para logs/UI
     private String usuarioCorreo;   // Correo (ej: "juan@correo.com") -> Usado para logs/notificaciones

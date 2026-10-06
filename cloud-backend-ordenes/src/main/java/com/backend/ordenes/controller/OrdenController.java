@@ -28,15 +28,28 @@ public class OrdenController {
             @RequestBody OrdenRequestDTO requestDTO,
             @AuthenticationPrincipal Jwt jwt) {
 
-        String usuarioCorreo = jwt.getSubject();
+        // 1. Identificador único universal del usuario (Sub/Oid de Azure) -> Se usa para la BD
+        String usuarioId = jwt.getSubject();
+
+        // 2. Nombre completo legible del usuario
+        String usuarioNombre = jwt.getClaimAsString("name");
+
+        // 3. Correo electrónico legible (preferred_username o email)
+        String usuarioCorreo = jwt.getClaimAsString("preferred_username");
         if (usuarioCorreo == null) {
             usuarioCorreo = jwt.getClaimAsString("email");
         }
+
+        // Fallbacks por si algún claim opcional no viniera en el token
         if (usuarioCorreo == null) {
-            usuarioCorreo = jwt.getSubject();
+            usuarioCorreo = usuarioId;
+        }
+        if (usuarioNombre == null) {
+            usuarioNombre = usuarioCorreo;
         }
 
-        Orden nuevaOrden = ordenService.crearOrden(requestDTO, usuarioCorreo);
+        // Enviar los 3 datos al Service para la persistencia y la publicación del evento en RabbitMQ
+        Orden nuevaOrden = ordenService.crearOrden(requestDTO, usuarioId, usuarioNombre, usuarioCorreo);
         return new ResponseEntity<>(nuevaOrden, HttpStatus.CREATED);
     }
 }

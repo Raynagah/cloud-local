@@ -17,14 +17,15 @@ public class CarritoEventListener {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_CARRITO_LIMPIAR)
     public void handleOrdenCreada(OrdenCreadaEvent event) {
-        log.info("Evento OrdenCreada recibido en ms-carrito para la orden ID: {} del usuario: {}",
-                event.getOrdenId(), event.getUsuarioCorreo());
+        log.info("Evento OrdenCreada recibido en ms-carrito para la orden ID: {} del usuario: {} ({})",
+                event.getOrdenId(), event.getUsuarioNombre(), event.getUsuarioId());
 
         try {
-            if (event.getUsuarioCorreo() != null) {
-                carritoService.vaciarCarritoPorUsuario(event.getUsuarioCorreo());
+            if (event.getUsuarioId() != null) {
+                // CAMBIO CLAVE: Pasamos getUsuarioId() en lugar de getUsuarioCorreo()
+                carritoService.vaciarCarritoPorUsuario(event.getUsuarioId(), event.getUsuarioNombre());
             } else {
-                log.warn("El evento de orden creada no contiene usuarioCorreo válido.");
+                log.warn("El evento de orden creada no contiene usuarioId válido.");
             }
         } catch (Exception e) {
             log.error("Error al intentar vaciar el carrito para la orden ID {}: {}",

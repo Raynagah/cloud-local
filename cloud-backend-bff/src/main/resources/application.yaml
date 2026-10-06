@@ -15,6 +15,8 @@ spring:
 # CONFIGURACIÓN DE RUTAS INTERNAS PARA OPENFEIGN
 # Usamos variables de entorno para apuntar a la red de Docker en producción
 # o localhost para desarrollo local.
+
+#Acá nos falta agregar el endpoint que da AWS en notifiacaciones y ordenes, para que se pueda consumir desde el BFF.
 microservicios:
   producto:
     url: ${MS_PRODUCTO_URL:https://peq4cfx9b1.execute-api.us-east-1.amazonaws.com/desarrolloprocarr}
@@ -22,6 +24,10 @@ microservicios:
     url: ${MS_CARRITO_URL:https://bhpifynk8i.execute-api.us-east-1.amazonaws.com/desarrollocarrito}
   usuario:
     url: ${MS_USUARIO_URL:https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1}
+  notificaciones:
+    url: ${MS_NOTIFICACIONES_URL:http://localhost:8086}
+  ordenes:
+    url: ${MS_ORDENES_URL:http://localhost:8085}  
 
 springdoc:
   show-actuator: true
