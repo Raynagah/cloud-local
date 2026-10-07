@@ -38,7 +38,7 @@ public class UsuarioBffServiceImpl implements UsuarioBffService {
     }
 
     @Override
-    public UsuarioDTO actualizarPerfil(Long id, UsuarioUpdateDTO dto) {
+    public UsuarioDTO actualizarPerfil(Long id, UsuarioPerfilUpdateDTO dto) {
         return usuarioClient.actualizar(id, dto);
     }
 

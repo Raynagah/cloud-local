@@ -48,7 +48,7 @@ public class BffUsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioUpdateDTO dto) {
+    public ResponseEntity<UsuarioDTO> actualizar(@PathVariable Long id, @Valid @RequestBody UsuarioPerfilUpdateDTO dto) {
         return ResponseEntity.ok(usuarioService.actualizarPerfil(id, dto));
     }
 

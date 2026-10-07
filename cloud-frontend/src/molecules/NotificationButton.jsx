@@ -20,12 +20,10 @@ export function NotificationButton() {
 
     useEffect(() => {
         cargarNotificaciones();
-        // Polling opcional cada 30 segundos para actualizar sin recargar la página
         const interval = setInterval(cargarNotificaciones, 30000);
         return () => clearInterval(interval);
     }, []);
 
-    // Cerrar el menú al hacer clic fuera del componente
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -55,10 +53,19 @@ export function NotificationButton() {
         navigate('/notificaciones');
     };
 
+    // Limpia las líneas divisoras y deja un resumen en una sola línea
+    const obtenerResumenMensaje = (mensaje) => {
+        if (!mensaje) return '';
+        return mensaje
+            .replace(/-{3,}/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
     return (
         <div className="notif-dropdown" ref={dropdownRef}>
             <button
-                className="notif-btn"
+                className={`notif-btn ${isOpen ? 'notif-btn--active' : ''}`}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Notificaciones"
             >
@@ -73,15 +80,20 @@ export function NotificationButton() {
             {isOpen && (
                 <div className="notif-menu">
                     <div className="notif-menu__header">
-                        <span>Notificaciones</span>
-                        {sinLeerCount > 0 && (
-                            <span className="notif-menu__unread-tag">{sinLeerCount} nuevas</span>
+                        <span className="notif-menu__title">Notificaciones</span>
+                        {sinLeerCount > 0 ? (
+                            <span className="notif-menu__unread-tag">{sinLeerCount} sin leer</span>
+                        ) : (
+                            <span className="notif-menu__all-read">Al día ✓</span>
                         )}
                     </div>
 
                     <div className="notif-menu__body">
                         {notificaciones.length === 0 ? (
-                            <p className="notif-menu__empty">No tienes notificaciones</p>
+                            <div className="notif-menu__empty">
+                                <span>📬</span>
+                                <p>Sin notificaciones recientes</p>
+                            </div>
                         ) : (
                             notificaciones.slice(0, 5).map((notif) => (
                                 <div
@@ -91,15 +103,22 @@ export function NotificationButton() {
                                 >
                                     <div className="notif-item__content">
                                         <strong className="notif-item__title">{notif.titulo}</strong>
-                                        <p className="notif-item__message">{notif.mensaje}</p>
-                                        <small className="notif-item__date">
-                                            {new Date(notif.fechaCreacion).toLocaleString()}
-                                        </small>
+                                        <p className="notif-item__message">
+                                            {obtenerResumenMensaje(notif.mensaje)}
+                                        </p>
+                                        <time className="notif-item__date">
+                                            {new Date(notif.fechaCreacion).toLocaleString('es-CL', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </time>
                                     </div>
                                     {!notif.leido && (
                                         <button
                                             className="notif-item__read-btn"
-                                            title="Marcar como leída"
+                                            title="Marcar como vista"
                                             onClick={(e) => handleMarcarLeida(e, notif.id)}
                                         >
                                             ✓
@@ -112,7 +131,7 @@ export function NotificationButton() {
 
                     <div className="notif-menu__footer">
                         <button onClick={handleVerTodas} className="notif-menu__see-all">
-                            Ver todo el historial
+                            Ver todo el historial →
                         </button>
                     </div>
                 </div>

@@ -12,6 +12,7 @@ import { CarritoPage } from './pages/CarritoPage';
 import { NotificacionesPage } from './pages/NotificacionesPage';
 import { HistorialOrdenesPage } from './pages/HistorialOrdenesPage';
 import { DetalleOrdenPage } from './pages/DetalleOrdenPage';
+import { EditProfilePage } from './pages/EditProfilePage'; 
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -28,6 +29,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/perfil" element={<PerfilPage />} />
             <Route path="/notificaciones" element={<NotificacionesPage />} />
+            <Route path="/editar-perfil" element={<EditProfilePage />} />
             {/* NUEVA RUTA PARA EL DETALLE */}
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/carrito" element={<CarritoPage />} />
