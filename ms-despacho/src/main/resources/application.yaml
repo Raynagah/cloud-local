@@ -25,6 +25,9 @@ spring:
     port: 5672
     username: ${RABBITMQ_USER:admin}
     password: ${RABBITMQ_PASSWORD:admin}
+    listener:
+        simple:
+          acknowledge-mode: manual
 
   # JPA E HIBERNATE
   jpa:
