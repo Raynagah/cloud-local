@@ -1,0 +1,67 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: ms-despacho
+
+  # CONFIGURACIÓN DE SEGURIDAD (AZURE AD)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/
+          tenant-id: 78b145ef-56b9-4397-b87c-27b242a9fce5
+
+  # BASE DE DATOS POSTGRESQL
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/db_despachos}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:admin}
+
+  # RABBITMQ
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
+    
+  # JAVA MAIL SENDER (MAILTRAP - SANDBOX)
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAIL_USERNAME:cb7a72dd2dd479}
+    password: ${MAIL_PASSWORD:e95ad8da34007b}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  # JPA E HIBERNATE
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+
+# SWAGGER Y ACTUATOR
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    use-root-path: true
+    path: /swagger-ui.html
+  api-docs:
+    path: /api/despachos/v1/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
@@ -25,4 +25,5 @@ public class OrdenCreadaEvent implements Serializable {
     private LocalDateTime fechaCreacion;
     private String estado;
     private BigDecimal total;
+    private List<DetalleOrdenDTO> items;
 }

@@ -72,6 +72,7 @@ public class OrdenService {
                                 .fechaCreacion(ordenGuardada.getFechaCreacion())
                                 .estado(ordenGuardada.getEstado())
                                 .total(ordenGuardada.getTotal())
+                                .items(requestDTO.getItems())
                                 .build();
 
                 rabbitTemplate.convertAndSend(
