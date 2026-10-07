@@ -1,4 +1,4 @@
-package com.backend.despacho.service;
+package com.backend.notificaciones.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:no-reply@tuapp.com}")
     private String remitente;
 
     public void enviarCorreoNotificacion(String destinatario, String asunto, String mensaje) {
@@ -28,7 +28,7 @@ public class EmailService {
             mailSender.send(email);
             log.info("Correo enviado exitosamente a: {}", destinatario);
         } catch (Exception e) {
-            log.error("Error al enviar el correo a {}: {}", destinatario, e.getMessage(), e);
+            log.error("Error al enviar el correo a {}: {}", destinatario, e.getMessage());
         }
     }
 }

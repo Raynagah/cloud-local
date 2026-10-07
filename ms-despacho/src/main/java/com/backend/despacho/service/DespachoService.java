@@ -18,7 +18,6 @@ import java.util.List;
 public class DespachoService {
 
     private final DespachoRepository despachoRepository;
-    private final EmailService emailService; // Inyectamos el servicio de correos
 
     @Transactional
     public void procesarNuevaOrden(OrdenCreadaEvent evento) {
@@ -45,15 +44,6 @@ public class DespachoService {
         despachoRepository.save(despacho);
 
         log.info("Despacho registrado exitosamente para Orden ID: {}", evento.getOrdenId());
-
-        // Enviar correo de inicio de preparación
-        String asunto = "¡Tu pedido #" + evento.getOrdenId() + " está en preparación!";
-        String mensaje = String.format(
-                "Hola %s,\n\nHemos recibido la confirmación de tu pago y ya estamos preparando tu pedido en bodega.\nPronto te avisaremos cuando se encuentre en camino.\n\nTotal pagado: $%s\n\nSaludos,\nEl equipo de Pedidos360",
-                evento.getUsuarioNombre() != null ? evento.getUsuarioNombre() : "Cliente",
-                evento.getTotal());
-
-        emailService.enviarCorreoNotificacion(evento.getUsuarioCorreo(), asunto, mensaje);
     }
 
     @Transactional(readOnly = true)
@@ -80,17 +70,6 @@ public class DespachoService {
                 .build();
 
         despacho.addHistorial(historial);
-        Despacho despachoActualizado = despachoRepository.save(despacho);
-
-        // Enviar correo informando la actualización del estado
-        String asunto = "Actualización de tu pedido #" + ordenId;
-        String mensaje = String.format(
-                "Hola,\n\nTu pedido ha cambiado al estado: %s\nObservación: %s\n\nSaludos,\nEl equipo de Pedidos360",
-                nuevoEstado.name(),
-                observacion);
-
-        emailService.enviarCorreoNotificacion(despacho.getUsuarioCorreo(), asunto, mensaje);
-
-        return despachoActualizado;
+        return despachoRepository.save(despacho);
     }
 }

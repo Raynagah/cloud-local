@@ -26,6 +26,7 @@ public class Notificacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = true) // Permite nulo cuando la notificación es de registro o actualización de datos
     private Long ordenId;
     private String usuarioCorreo;
     private String titulo;
