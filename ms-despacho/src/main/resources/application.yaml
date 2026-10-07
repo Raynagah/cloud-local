@@ -25,19 +25,6 @@ spring:
     port: 5672
     username: ${RABBITMQ_USER:admin}
     password: ${RABBITMQ_PASSWORD:admin}
-    
-  # JAVA MAIL SENDER (MAILTRAP - SANDBOX)
-  mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 2525
-    username: ${MAIL_USERNAME:cb7a72dd2dd479}
-    password: ${MAIL_PASSWORD:e95ad8da34007b}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 
   # JPA E HIBERNATE
   jpa:

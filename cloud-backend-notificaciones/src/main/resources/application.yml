@@ -33,7 +33,18 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-
+  
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAIL_USERNAME:cb7a72dd2dd479}
+    password: ${MAIL_PASSWORD:e95ad8da34007b}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 # PROPIEDADES PERSONALIZADAS DE RABBITMQ PARA ESTE MICROSERVICIO
 app:
   rabbitmq:
