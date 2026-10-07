@@ -28,4 +28,12 @@ public class BffOrdenesController {
         Object response = ordenesBffService.obtenerMisOrdenes(token);
         return ResponseEntity.ok(response);
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getOrdenPorId(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @PathVariable("id") Long id) {
+        Object response = ordenesBffService.obtenerOrdenPorId(token, id);
+        return ResponseEntity.ok(response);
+    }
 }

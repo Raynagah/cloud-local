@@ -10,6 +10,8 @@ import org.springframework.web.client.RestTemplate;
 public class OrdenesBffServiceImpl implements OrdenesBffService {
 
     private final RestTemplate restTemplate;
+    @Value("${MS_ORDENES_URL:http://localhost:8085}")
+    private String ordenesServiceUrl;
 
     @Value("${MS_ORDENES_URL:http://localhost:8085}")
     private String msOrdenesUrl;
@@ -53,4 +55,15 @@ public class OrdenesBffServiceImpl implements OrdenesBffService {
         headers.set(HttpHeaders.AUTHORIZATION, token);
         return headers;
     }
+
+    public Object obtenerOrdenPorId(String token, Long id) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HttpHeaders.AUTHORIZATION, token);
+    HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+    // Reemplaza ordenesServiceUrl por tu variable o la URL base de ms-ordenes (ej. "http://ms-ordenes")
+    String url = ordenesServiceUrl + "/api/v1/ordenes/" + id;
+
+    return restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class).getBody();
+}
 }

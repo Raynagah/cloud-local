@@ -96,4 +96,9 @@ public class OrdenService {
 
                 return ordenGuardada;
         }
+
+        public Orden obtenerOrdenPorId(Long id) {
+                return ordenRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Orden no encontrada con ID: " + id));
+        }
 }
