@@ -95,9 +95,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-usuarios-cloud:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
@@ -128,9 +126,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-producto:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
@@ -160,9 +156,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-carrito:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
@@ -192,9 +186,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-ordenes:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
@@ -284,9 +276,7 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-notificaciones:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1" ]

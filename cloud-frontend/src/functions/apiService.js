@@ -73,6 +73,17 @@ export const vaciarCarritoBackend = async () => {
 export const crearOrden = async (items) => {
     return await apiClient.post('/ordenes/checkout', { items });
 };
+
+// Obtener el historial de compras del usuario
+export const getHistorialOrdenes = async () => {
+    return await apiClient.get('/ordenes'); // Asegúrate de que esta ruta coincida con el endpoint de tu BFF
+};
+
+// Obtener el detalle de una orden por su ID
+//export const getOrdenById = async (id) => {
+    // Ajusta la URL según la ruta de tu BFF o API Gateway para ms-ordenes
+//    return await api.get(`/ordenes/${id}`); 
+//};
 // --- NOTIFICACIONES ---
 export const getNotificaciones = async () => {
     return await apiClient.get('/notificaciones');

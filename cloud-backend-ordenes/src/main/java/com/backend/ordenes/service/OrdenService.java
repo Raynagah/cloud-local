@@ -2,9 +2,12 @@ package com.backend.ordenes.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.backend.ordenes.config.RabbitMQConfig;
 import com.backend.ordenes.dto.DetalleOrdenDTO;
 import com.backend.ordenes.dto.OrdenCreadaEvent;
@@ -12,6 +15,7 @@ import com.backend.ordenes.dto.OrdenRequestDTO;
 import com.backend.ordenes.model.DetalleOrden;
 import com.backend.ordenes.model.Orden;
 import com.backend.ordenes.repository.OrdenRepository;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,6 +28,12 @@ public class OrdenService {
         public OrdenService(OrdenRepository ordenRepository, RabbitTemplate rabbitTemplate) {
                 this.ordenRepository = ordenRepository;
                 this.rabbitTemplate = rabbitTemplate;
+        }
+
+        @Transactional(readOnly = true)
+        public List<Orden> obtenerOrdenesPorUsuario(String usuarioCorreo) {
+                log.info("Obteniendo historial de órdenes para: {}", usuarioCorreo);
+                return ordenRepository.findAllByUsuarioCorreoOrderByFechaCreacionDesc(usuarioCorreo);
         }
 
         @Transactional
@@ -40,7 +50,7 @@ public class OrdenService {
 
                 // 2. Construir la entidad Orden
                 Orden orden = Orden.builder()
-                                .usuarioCorreo(usuarioId)
+                                .usuarioCorreo(usuarioCorreo)
                                 .fechaCreacion(LocalDateTime.now())
                                 .estado("PROCESADO")
                                 .total(total)
@@ -50,6 +60,7 @@ public class OrdenService {
                 for (DetalleOrdenDTO itemDto : requestDTO.getItems()) {
                         DetalleOrden detalle = DetalleOrden.builder()
                                         .productoId(itemDto.getProductoId())
+                                        .nombreProducto(itemDto.getNombreProducto())
                                         .cantidad(itemDto.getCantidad())
                                         .precioUnitario(itemDto.getPrecioUnitario())
                                         .build();

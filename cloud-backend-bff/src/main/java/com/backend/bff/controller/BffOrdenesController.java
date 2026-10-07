@@ -1,37 +1,31 @@
 package com.backend.bff.controller;
 
+import com.backend.bff.service.OrdenesBffService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/v1/bff/ordenes")
 @RequiredArgsConstructor
 public class BffOrdenesController {
 
-    private final RestTemplate restTemplate;
-
-    @Value("${MS_ORDENES_URL:http://localhost:8085}")
-    private String msOrdenesUrl;
+    private final OrdenesBffService ordenesBffService;
 
     @PostMapping("/checkout")
     public ResponseEntity<Object> realizarCheckout(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @RequestBody(required = false) Object requestBody) {
+        Object response = ordenesBffService.realizarCheckout(token, requestBody);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(HttpHeaders.AUTHORIZATION, token);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<Object> entity = new HttpEntity<>(requestBody, headers);
-
-        return restTemplate.exchange(
-            msOrdenesUrl + "/api/v1/ordenes",
-            HttpMethod.POST,
-            entity,
-            Object.class
-        );
+    @GetMapping
+    public ResponseEntity<Object> getOrdenes(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        Object response = ordenesBffService.obtenerMisOrdenes(token);
+        return ResponseEntity.ok(response);
     }
 }

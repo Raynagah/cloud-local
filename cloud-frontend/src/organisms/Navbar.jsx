@@ -19,6 +19,7 @@ export function Navbar() {
             </div>
             
             <div className="navbar__right">
+                <Link to="/mis-ordenes" className="navbar__link">Mis Órdenes</Link>
                 <NotificationButton />
                 <CartButton />
                 <LoginButton />
