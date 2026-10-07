@@ -5,11 +5,11 @@ import { useNavigate } from 'react-router-dom';
 
 // Configuración de estados mapeada a EstadoDespacho + PROCESADO
 const CONFIG_ESTADOS = {
-    PROCESADO:      { label: 'Procesado',      color: '#2563eb', bg: '#dbeafe', icon: '⚙️' },
+    PROCESADO: { label: 'Procesado', color: '#2563eb', bg: '#dbeafe', icon: '⚙️' },
     EN_PREPARACION: { label: 'En Preparación', color: '#d97706', bg: '#fef3c7', icon: '📦' },
-    EN_TRANSITO:    { label: 'En Tránsito',    color: '#7c3aed', bg: '#ede9fe', icon: '🚚' },
-    ENTREGADO:      { label: 'Entregado',      color: '#16a34a', bg: '#dcfce7', icon: '✅' },
-    CANCELADO:      { label: 'Cancelado',      color: '#dc2626', bg: '#fee2e2', icon: '❌' }
+    EN_TRANSITO: { label: 'En Tránsito', color: '#7c3aed', bg: '#ede9fe', icon: '🚚' },
+    ENTREGADO: { label: 'Entregado', color: '#16a34a', bg: '#dcfce7', icon: '✅' },
+    CANCELADO: { label: 'Cancelado', color: '#dc2626', bg: '#fee2e2', icon: '❌' }
 };
 
 export function HistorialOrdenesPage() {
@@ -78,8 +78,8 @@ export function HistorialOrdenesPage() {
             ) : (
                 <div className="historial__grid">
                     {ordenes.map(orden => (
-                        <div 
-                            key={orden.id} 
+                        <div
+                            key={orden.id}
                             className="historial__card historial__card--clickable"
                             onClick={() => navigate(`/ordenes/${orden.id}`)}
                             style={{ cursor: 'pointer' }}
@@ -95,8 +95,8 @@ export function HistorialOrdenesPage() {
                                 <h4>Artículos:</h4>
                                 <ul>
                                     {(orden.detalles || orden.items)?.map((item, index) => {
-                                        const nombre = item.nombreProducto 
-                                            || item.nombre 
+                                        const nombre = item.nombreProducto
+                                            || item.nombre
                                             || `Producto #${item.productoId}`;
 
                                         return (

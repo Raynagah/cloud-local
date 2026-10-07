@@ -39,7 +39,7 @@ export function DetalleOrdenPage() {
     if (!orden) return (
         <div className="detalle-orden__container">
             <h2>Orden no encontrada 🔍</h2>
-            <Button onClick={() => navigate('/historial')}>Volver al historial</Button>
+            <Button onClick={() => navigate('/mis-ordenes')}>Volver al historial</Button>
         </div>
     );
 
@@ -53,7 +53,7 @@ export function DetalleOrdenPage() {
     return (
         <div className="detalle-orden__bg">
             <div className="detalle-orden__container">
-                <Button variant="text" onClick={() => navigate('/historial')} className="btn-volver">
+                <Button variant="text" onClick={() => navigate('/mis-ordenes')} className="btn-volver">
                     ← Volver al historial
                 </Button>
 
