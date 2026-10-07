@@ -73,6 +73,16 @@ export const vaciarCarritoBackend = async () => {
 export const crearOrden = async (items) => {
     return await apiClient.post('/ordenes/checkout', { items });
 };
+
+// Obtener el historial de compras del usuario
+export const getHistorialOrdenes = async () => {
+    return await apiClient.get('/ordenes');
+};
+
+// Obtener el detalle de una orden por su ID
+export const getOrdenById = async (id) => {
+    return await apiClient.get(`/ordenes/${id}`);
+};
 // --- NOTIFICACIONES ---
 export const getNotificaciones = async () => {
     return await apiClient.get('/notificaciones');

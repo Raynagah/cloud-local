@@ -22,6 +22,9 @@ public class DetalleOrden {
     @Column(nullable = false)
     private Long productoId; // ID del Funko Pop
 
+    @Column(name = "nombre_producto")
+    private String nombreProducto;
+
     @Column(nullable = false)
     private Integer cantidad;
 

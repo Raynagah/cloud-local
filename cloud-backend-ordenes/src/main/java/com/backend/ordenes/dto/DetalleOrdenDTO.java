@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DetalleOrdenDTO {
     private Long productoId;
+    private String nombreProducto;
     private Integer cantidad;
     private BigDecimal precioUnitario;
 }

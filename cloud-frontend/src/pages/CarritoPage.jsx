@@ -73,19 +73,20 @@ export function CarritoPage() {
 
         setProcesandoCompra(true);
         try {
-            // Mapear los ítems del carrito al formato que espera OrdenRequestDTO
+            // Mapeamos los ítems incluyendo 'nombreProducto' sacado del diccionario
             const itemsDTO = carrito.items.map(item => ({
                 productoId: item.productoId,
+                nombreProducto: diccionarioProductos[item.productoId] || `Producto #${item.productoId}`, // <--- NUEVO CAMPO
                 cantidad: item.cantidad,
                 precioUnitario: item.precioUnitario
             }));
 
-            // 1. Invocar ms-ordenes vía BFF
+            // Invocar ms-ordenes vía BFF
             await crearOrden(itemsDTO);
 
             alert("¡Compra procesada exitosamente! 🚀");
             
-            // 2. Redirigir al usuario al dashboard
+            // Redirigir al usuario al dashboard
             navigate('/dashboard');
 
         } catch (error) {

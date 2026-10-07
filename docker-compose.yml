@@ -21,7 +21,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./ms-bd-cloud/init-dbs.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,7 +39,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-admin}
     healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -68,7 +68,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -95,12 +95,10 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-usuarios-cloud:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -128,12 +126,10 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-producto:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -160,12 +156,10 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-carrito:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -192,12 +186,10 @@ services:
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
     depends_on:
-      ms-bd-cloud:
-        condition: service_healthy
-      rabbitmq:
+      ms-ordenes:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8086/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -219,6 +211,7 @@ services:
       MS_USUARIO_URL: "http://ms-usuarios-cloud:8081"
       MS_ORDENES_URL: "http://ms-ordenes:8085"
       MS_NOTIFICACIONES_URL: "http://ms-notificaciones:8086"
+      MS_DESPACHO_URL: "http://ms-despacho:8087"
     depends_on:
       ms-producto:
         condition: service_healthy
@@ -230,8 +223,10 @@ services:
         condition: service_healthy
       ms-notificaciones:
         condition: service_healthy
+      ms-despacho:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -256,9 +251,38 @@ services:
       ms-bff:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1"]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - pedidos360-network
+  # 10. Microservicio Despacho
+  ms-despacho:
+    build:
+      context: ./ms-despacho
+    container_name: ms-despacho
+    ports:
+      - "8087:8087"
+    environment:
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-78b145ef-56b9-4397-b87c-27b242a9fce5}
+      DB_URL: ${DB_URL_DESPACHO:-jdbc:postgresql://ms-bd-cloud:5432/db_despachos}
+      DB_USERNAME: ${DB_USER:-admin}
+      DB_PASSWORD: ${DB_PASS:-admin}
+      SPRING_DATASOURCE_URL: ${DB_URL_DESPACHO:-jdbc:postgresql://ms-bd-cloud:5432/db_despachos}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-admin}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASS:-admin}
+      RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
+      RABBITMQ_USER: ${RABBITMQ_USER:-admin}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
+    depends_on:
+      ms-notificaciones:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8087/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
     networks:
       - pedidos360-network

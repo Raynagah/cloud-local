@@ -10,6 +10,8 @@ import { ProductoDetallePage } from './pages/ProductoDetallePage';
 import { MainLayout } from './templates/MainLayout';
 import { CarritoPage } from './pages/CarritoPage';
 import { NotificacionesPage } from './pages/NotificacionesPage';
+import { HistorialOrdenesPage } from './pages/HistorialOrdenesPage';
+import { DetalleOrdenPage } from './pages/DetalleOrdenPage';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -29,6 +31,8 @@ function App() {
             {/* NUEVA RUTA PARA EL DETALLE */}
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/carrito" element={<CarritoPage />} />
+            <Route path="/mis-ordenes" element={<HistorialOrdenesPage />} />
+            <Route path="/ordenes/:id" element={<DetalleOrdenPage />} />
         </Route>
 
       </Routes>
