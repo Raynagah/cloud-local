@@ -47,10 +47,28 @@ export function NotificacionesPage() {
         return true;
     });
 
+    // Limpia y le da formato visual a los mensajes estructurados
+    const formatearMensaje = (mensaje) => {
+        if (!mensaje) return null;
+        return mensaje
+            .replace(/-{5,}/g, '\n---\n') // Convierte cadenas de guiones largas en un separador limpio
+            .split('\n')
+            .map((linea, index) => {
+                if (linea.trim() === '---') {
+                    return <hr key={index} className="notif-card__divider" />;
+                }
+                if (!linea.trim()) return null;
+                return <p key={index} className="notif-card__line">{linea}</p>;
+            });
+    };
+
     return (
         <div className="notificaciones-page">
-            <div className="notificaciones-page__header">
-                <h1 className="notificaciones-page__title">Centro de Notificaciones 🔔</h1>
+            <header className="notificaciones-page__header">
+                <div className="notificaciones-page__title-group">
+                    <h1 className="notificaciones-page__title">Centro de Notificaciones</h1>
+                    <span className="notificaciones-page__badge">🔔 {notificaciones.length}</span>
+                </div>
                 
                 <div className="notificaciones-page__filters">
                     <button 
@@ -66,49 +84,60 @@ export function NotificacionesPage() {
                         Sin leer ({notificaciones.filter(n => !n.leido).length})
                     </button>
                 </div>
-            </div>
+            </header>
 
             {cargando ? (
-                <p className="notificaciones-page__loading">Cargando tus notificaciones... ⏳</p>
+                <div className="notificaciones-page__loading">
+                    <span className="spinner">⏳</span>
+                    <p>Cargando tus notificaciones...</p>
+                </div>
             ) : notificacionesFiltradas.length === 0 ? (
                 <div className="notificaciones-page__empty">
-                    <p>No se encontraron notificaciones en esta sección.</p>
+                    <div className="empty-icon">📬</div>
+                    <h3>No tienes notificaciones en esta sección</h3>
+                    <p>Te avisaremos cuando haya actualizaciones sobre tus compras o cuenta.</p>
                 </div>
             ) : (
                 <div className="notificaciones-page__list">
                     {notificacionesFiltradas.map((notif) => (
-                        <div 
+                        <article 
                             key={notif.id} 
                             className={`notif-card ${!notif.leido ? 'notif-card--unread' : ''}`}
                         >
-                            <div className="notif-card__status-indicator"></div>
+                            <div className="notif-card__status-indicator" />
                             <div className="notif-card__body">
                                 <div className="notif-card__top">
                                     <h3 className="notif-card__title">{notif.titulo}</h3>
-                                    <span className="notif-card__date">
-                                        {new Date(notif.fechaCreacion).toLocaleString()}
-                                    </span>
+                                    <time className="notif-card__date">
+                                        {new Date(notif.fechaCreacion).toLocaleString('es-CL', {
+                                            dateStyle: 'medium',
+                                            timeStyle: 'short'
+                                        })}
+                                    </time>
                                 </div>
-                                <p className="notif-card__message">{notif.mensaje}</p>
                                 
-                                <div className="notif-card__actions">
+                                <div className="notif-card__message">
+                                    {formatearMensaje(notif.mensaje)}
+                                </div>
+                                
+                                <footer className="notif-card__actions">
                                     {!notif.leido && (
                                         <button 
                                             className="action-btn action-btn--read"
                                             onClick={() => handleMarcarLeida(notif.id)}
                                         >
-                                            Marcar como vista
+                                            ✓ Marcar como vista
                                         </button>
                                     )}
                                     <button 
                                         className="action-btn action-btn--delete"
                                         onClick={() => handleEliminar(notif.id)}
                                     >
-                                        Eliminar
+                                        🗑 Eliminar
                                     </button>
-                                </div>
+                                </footer>
                             </div>
-                        </div>
+                        </article>
                     ))}
                 </div>
             )}

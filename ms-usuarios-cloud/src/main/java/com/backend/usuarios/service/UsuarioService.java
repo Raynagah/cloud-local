@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.backend.usuarios.config.RabbitMQConfig;
 import com.backend.usuarios.dto.UsuarioDTO;
+import com.backend.usuarios.dto.UsuarioPerfilUpdateDTO;
 import com.backend.usuarios.dto.UsuarioRequestDTO;
 import com.backend.usuarios.dto.UsuarioUpdateDTO;
 import com.backend.usuarios.dto.evento.UsuarioActualizadoEvent;
@@ -57,9 +58,9 @@ public class UsuarioService {
         return convertirADTO(usuarioGuardado);
     }
 
-    public UsuarioDTO actualizarUsuario(Long id, UsuarioUpdateDTO dto) {
+    public UsuarioDTO actualizarUsuario(Long id, UsuarioPerfilUpdateDTO dto) {
         Usuario usuario = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ID: " + id));
 
         usuario.setNombre(dto.nombre());
         usuario.setEdad(dto.edad());
@@ -73,7 +74,7 @@ public class UsuarioService {
         publicarEventoActualizacion(usuarioGuardado);
 
         return convertirADTO(usuarioGuardado);
-    }
+    }   
 
     // =========================================================================
     // 2. MÉTODOS GENERALES (INCLUYE LOGIN CON SSO)

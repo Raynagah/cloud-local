@@ -9,7 +9,7 @@ public interface UsuarioBffService {
     UsuarioDTO registrarUsuario(UsuarioRequestDTO dto);
     UsuarioDTO obtenerPerfil(Long id);
     List<UsuarioDTO> listarUsuarios();
-    UsuarioDTO actualizarPerfil(Long id, UsuarioUpdateDTO dto);
+    UsuarioDTO actualizarPerfil(Long id, UsuarioPerfilUpdateDTO dto);
     void eliminarUsuario(Long id);
     
     // Operaciones Admin

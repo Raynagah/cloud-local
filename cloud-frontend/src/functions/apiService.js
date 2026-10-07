@@ -44,6 +44,10 @@ export const registrarUsuario = async (usuarioData, token) => {
     });
 };
 
+export const actualizarUsuario = async (id, usuarioData) => {
+    return await apiClient.put(`/usuarios/${id}`, usuarioData);
+};
+
 // --- PRODUCTOS (¡Ya no necesitan el parámetro token!) ---
 export const getProductos = async () => {
     return await apiClient.get('/productos');

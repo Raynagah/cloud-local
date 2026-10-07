@@ -23,7 +23,7 @@ public interface UsuarioClient {
     UsuarioDTO login(@RequestBody SsoLoginRequestDTO dto);
 
     @PutMapping("/api/usuarios/{id}")
-    UsuarioDTO actualizar(@PathVariable("id") Long id, @RequestBody UsuarioUpdateDTO dto);
+    UsuarioDTO actualizar(@PathVariable("id") Long id, @RequestBody UsuarioPerfilUpdateDTO dto);
 
     @DeleteMapping("/api/usuarios/{id}")
     void eliminar(@PathVariable("id") Long id);
