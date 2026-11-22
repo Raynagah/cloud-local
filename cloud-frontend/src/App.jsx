@@ -12,7 +12,8 @@ import { CarritoPage } from './pages/CarritoPage';
 import { NotificacionesPage } from './pages/NotificacionesPage';
 import { HistorialOrdenesPage } from './pages/HistorialOrdenesPage';
 import { DetalleOrdenPage } from './pages/DetalleOrdenPage';
-import { EditProfilePage } from './pages/EditProfilePage'; 
+import { EditProfilePage } from './pages/EditProfilePage';
+import { CallbackWebpayPage } from './pages/CallbackWebpayPage'; 
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -22,6 +23,9 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage />} />
         
+        {/* Ruta pública para recibir el retorno de Transbank */}
+        <Route path="/callback" element={<CallbackWebpayPage />} />
+        
         <Route path="/registro" element={isAuthenticated ? <RegistroPage /> : <Navigate to="/" />} />
         
         {/* Rutas protegidas envueltas en el Layout (Navbar incluido) */}
@@ -30,13 +34,11 @@ function App() {
             <Route path="/perfil" element={<PerfilPage />} />
             <Route path="/notificaciones" element={<NotificacionesPage />} />
             <Route path="/editar-perfil" element={<EditProfilePage />} />
-            {/* NUEVA RUTA PARA EL DETALLE */}
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/carrito" element={<CarritoPage />} />
             <Route path="/mis-ordenes" element={<HistorialOrdenesPage />} />
             <Route path="/ordenes/:id" element={<DetalleOrdenPage />} />
         </Route>
-
       </Routes>
     </BrowserRouter>
   );

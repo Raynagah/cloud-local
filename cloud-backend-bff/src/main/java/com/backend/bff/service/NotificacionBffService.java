@@ -1,7 +1,10 @@
 package com.backend.bff.service;
 
+import com.backend.bff.dto.NotificacionDTO;
+import java.util.List;
+
 public interface NotificacionBffService {
-    Object obtenerMisNotificaciones(String token);
-    Object marcarComoLeida(Long id, String token);
-    void eliminarNotificacion(Long id, String token);
+    List<NotificacionDTO> obtenerMisNotificaciones();
+    NotificacionDTO marcarComoLeida(Long id);
+    void eliminarNotificacion(Long id);
 }

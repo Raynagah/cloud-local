@@ -12,22 +12,23 @@ spring:
           issuer-uri: https://login.microsoftonline.com/
           tenant-id: 78b145ef-56b9-4397-b87c-27b242a9fce5
 
-# CONFIGURACIÓN DE RUTAS INTERNAS PARA OPENFEIGN
-# Usamos variables de entorno para apuntar a la red de Docker en producción
-# o localhost para desarrollo local.
-
-#Acá nos falta agregar el endpoint que da AWS en notifiacaciones y ordenes, para que se pueda consumir desde el BFF.
+# CONFIGURACIÓN DE ENDPOINTS PARA OPENFEIGN
+# 1. Si existe MS_*_URL, usa esa URL específica.
+# 2. Si existe AWS_BACKEND_GATEWAY_URL, la usa como base central.
+# 3. Si no hay variables (desarrollo local), apunta a localhost en el puerto de cada microservicio.
 microservicios:
-  producto:
-    url: ${MS_PRODUCTO_URL:https://peq4cfx9b1.execute-api.us-east-1.amazonaws.com/desarrolloprocarr}
-  carrito:
-    url: ${MS_CARRITO_URL:https://bhpifynk8i.execute-api.us-east-1.amazonaws.com/desarrollocarrito}
   usuario:
-    url: ${MS_USUARIO_URL:https://nku8zd8ok9.execute-api.us-east-1.amazonaws.com/desarrollo1}
-  notificaciones:
-    url: ${MS_NOTIFICACIONES_URL:http://localhost:8086}
+    url: ${MS_USUARIO_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8081}}
+  producto:
+    url: ${MS_PRODUCTO_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8082}}
+  carrito:
+    url: ${MS_CARRITO_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8083}}
   ordenes:
-    url: ${MS_ORDENES_URL:http://localhost:8085}  
+    url: ${MS_ORDENES_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8085}}
+  notificaciones:
+    url: ${MS_NOTIFICACIONES_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8086}}
+  despachos:
+    url: ${MS_DESPACHOS_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8087}}
 
 springdoc:
   show-actuator: true
@@ -36,6 +37,7 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /api/bff/v1/api-docs
+
 management:
   endpoints:
     web:

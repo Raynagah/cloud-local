@@ -1,0 +1,50 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: ms-pagos
+
+  # CONFIGURACIÓN DE SEGURIDAD (AZURE AD)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/
+          tenant-id: ${AZURE_TENANT_ID:78b145ef-56b9-4397-b87c-27b242a9fce5}
+
+  # CONFIGURACIÓN DE BASE DE DATOS (Usando tu contenedor ms-bd-cloud)
+  datasource:
+    url: ${DB_URL_PAGOS:jdbc:postgresql://localhost:5432/db_pagos}
+    username: ${DB_USER:admin}
+    password: ${DB_PASS:admin}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  # CONFIGURACIÓN DE RABBITMQ (Agregado para conectar al contenedor rabbitmq)
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USER:admin}
+    password: ${RABBITMQ_PASSWORD:admin}
+
+  # CONFIGURACIÓN DE APACHE KAFKA
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: payment-velocity-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    listener:
+      missing-topics-fatal: false
+      auto-startup: true
