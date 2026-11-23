@@ -6,8 +6,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.pagos.model.EstadoPagoCliente;
-import com.backend.pagos.repository.EstadoPagoClienteRepositorio;
 import com.backend.pagos.config.RabbitMQConfig;
 import com.backend.pagos.dto.IntentoPagoDTO;
 import com.backend.pagos.dto.PagoExitosoEvent;
@@ -19,9 +17,6 @@ import cl.transbank.webpay.webpayplus.WebpayPlus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import com.backend.pagos.config.RabbitMQConfig;
-import com.backend.pagos.dto.PagoExitosoEvent;
-import java.math.BigDecimal;
 
 @Slf4j
 @Service
@@ -29,38 +24,12 @@ import java.math.BigDecimal;
 public class PagosServices {
     
     private final KafkaTemplate<String, IntentoPagoDTO> kafkaTemplate;
-    private final EstadoPagoClienteRepositorio estadoRepositorio;
+    private final AntifraudeService antifraudeService;
     
     // INYECTAMOS RABBITMQ
     private final RabbitTemplate rabbitTemplate;
     
     private static final String TOPIC_NOMBRE = "payment-attempts";
-    
-    public boolean verificarSiUsuarioEstaBloqueado(String idCliente) {
-        EstadoPagoCliente estado = estadoRepositorio.findById(idCliente).orElse(null);
-        
-        if (estado == null || !estado.isBloqueado()) {
-            return false; // No existe o no está bloqueado
-        }
-        
-        // Si está bloqueado, verificamos si ya pasaron los 30 minutos
-        if (estado.getBloqueadoHasta() != null) {
-            LocalDateTime ahora = LocalDateTime.now();
-            
-            if (ahora.isAfter(estado.getBloqueadoHasta())) {
-                // ¡Ya pasaron los 30 minutos! Desbloqueamos automáticamente
-                estado.setBloqueado(false);
-                estado.setCantidadIntentos(0);
-                estado.setBloqueadoHasta(null);
-                estado.setActualizadoEn(ahora);
-                estadoRepositorio.save(estado);
-                
-                log.info("El bloqueo por 30 minutos expiró para el cliente {}. Usuario desbloqueado automáticamente.", idCliente);
-                return false; // Permitir el pago
-            }
-        }
-        return true; // Sigue bloqueado (aún no transcurren los 30 minutos)
-    }
     
     public TransaccionRespuestaDTO iniciarTransaccionWebpay(String buyOrder, String sessionId, double amount, String returnUrl) {
         try {
@@ -86,25 +55,24 @@ public class PagosServices {
     
     // Método único para producir el intento hacia Kafka
     public void producirIntentoPago(String idCliente, Long monto, String idTransaccion) {
-        IntentoPagoDTO evento = new IntentoPagoDTO(idCliente, monto, idTransaccion, LocalDateTime.now());
-        kafkaTemplate.send(TOPIC_NOMBRE, idCliente, evento);
-        log.info("Evento de intento enviado a Kafka para el cliente: {}", idCliente);
+        try {
+            IntentoPagoDTO evento = new IntentoPagoDTO(idCliente, monto, idTransaccion, LocalDateTime.now());
+            kafkaTemplate.send(TOPIC_NOMBRE, idCliente, evento);
+            log.info("Evento de intento enviado a Kafka para el cliente: {}", idCliente);
+        } catch (Exception e) {
+            // La analítica nunca debe impedir un pago
+            log.warn("No se pudo publicar el intento de pago en Kafka: {}", e.getMessage());
+        }
     }
     
     // Gestión del Callback (Éxito / Fallo)
     @Transactional
     public void gestionarResultadoCallbackPago(String idCliente, boolean esExitoso, String buyOrder, Double amount, String token) {
-        EstadoPagoCliente estado = estadoRepositorio.findById(idCliente).orElse(null);
-        
         if (esExitoso) {
-            if (estado != null) {
-                estado.setCantidadIntentos(0);
-                estado.setBloqueado(false);
-                estado.setBloqueadoHasta(null);
-                estadoRepositorio.save(estado);
-            }
-            log.info("Transacción exitosa para {}. Contador de intentos reiniciado.", idCliente);
-            
+            // Un pago exitoso limpia el historial de intentos del cliente.
+            antifraudeService.reiniciar(AntifraudeService.construirClave(null, idCliente));
+            log.info("Transacción exitosa para {}. Historial antifraude reiniciado.", idCliente);
+
             // DISPARAR EVENTO A RABBITMQ
             PagoExitosoEvent eventoPago = PagoExitosoEvent.builder()
                     .ordenId(buyOrder)
@@ -112,22 +80,17 @@ public class PagosServices {
                     .monto(BigDecimal.valueOf(amount))
                     .token(token)
                     .build();
-            
+
             rabbitTemplate.convertAndSend(
-                    RabbitMQConfig.EXCHANGE_PEDIDOS, 
-                    RabbitMQConfig.ROUTING_KEY_PAGO_EXITOSO, 
+                    RabbitMQConfig.EXCHANGE_PEDIDOS,
+                    RabbitMQConfig.ROUTING_KEY_PAGO_EXITOSO,
                     eventoPago
             );
             log.info("Evento de Pago Exitoso enviado a RabbitMQ para la Orden: {}", buyOrder);
-            
+
         } else {
-            if (estado != null) {
-                estado.setCantidadIntentos(0);
-                estado.setBloqueado(false);
-                estado.setBloqueadoHasta(null);
-                estadoRepositorio.save(estado);
-            }
-            log.info("Transacción rechazada/fallida para {}. Intentos reiniciados.", idCliente);
+            // IMPORTANTE: un rechazo NO reinicia el contador, de lo contrario se podría eludir la regla antifraude.
+            log.info("Transacción rechazada/fallida para {}. Los intentos se mantienen en la ventana antifraude.", idCliente);
         }
     }
 }

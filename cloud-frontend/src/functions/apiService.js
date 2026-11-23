@@ -57,6 +57,14 @@ export const getProductoById = async (id) => {
     return await apiClient.get(`/productos/${id}`);
 };
 
+// --- ANALÍTICA Y RECOMENDACIONES ---
+// URL del WebSocket de métricas en tiempo real (ms-analytics-recommendations)
+export const ANALYTICS_WS_URL = import.meta.env.VITE_ANALYTICS_WS_URL || "ws://localhost:8089/ws/metrics";
+
+export const getRecomendaciones = async (productoId, max = 4) => {
+    return await apiClient.get('/analitica/recomendaciones', { params: { productoId, max } });
+};
+
 // --- CARRITO ---
 export const getCarrito = async () => {
     return await apiClient.get('/carritos');

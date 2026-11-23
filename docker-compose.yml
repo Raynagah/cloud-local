@@ -6,6 +6,7 @@ networks:
 
 volumes:
   postgres_data:
+  dynamodb_data:
 
 services:
   # 1. Base de Datos (PostgreSQL)
@@ -94,6 +95,7 @@ services:
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
+      KAFKA_HOST: "kafka:29092"
     depends_on:
       ms-usuarios-cloud:
         condition: service_healthy
@@ -122,6 +124,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-admin}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASS:-admin}
       PRODUCTO_API_URL: "http://ms-producto:8082/api/v1/productos"
+      KAFKA_HOST: "kafka:29092"
       RABBITMQ_HOST: ${RABBITMQ_HOST:-rabbitmq}
       RABBITMQ_USER: ${RABBITMQ_USER:-admin}
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-admin}
@@ -212,6 +215,8 @@ services:
       MS_ORDENES_URL: "http://ms-ordenes:8085"
       MS_NOTIFICACIONES_URL: "http://ms-notificaciones:8086"
       MS_DESPACHO_URL: "http://ms-despacho:8087"
+      MS_DESPACHOS_URL: "http://ms-despacho:8087"
+      MS_ANALYTICS_URL: "http://ms-analytics:8089"
     depends_on:
       ms-producto:
         condition: service_healthy
@@ -226,6 +231,8 @@ services:
       ms-despacho:
         condition: service_healthy
       ms-pagos: 
+        condition: service_healthy
+      ms-analytics:
         condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1" ]
@@ -243,6 +250,7 @@ services:
       args:
         VITE_REDIRECT_URI: ${VITE_REDIRECT_URI:-http://localhost}
         VITE_BFF_URL: ${VITE_BFF_URL:-http://localhost:8084/api/v1/bff}
+        VITE_ANALYTICS_WS_URL: ${VITE_ANALYTICS_WS_URL:-ws://localhost:8089/ws/metrics}
     container_name: ms-frontend
     ports:
       - "80:80"
@@ -354,5 +362,46 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - pedidos360-network
+
+  # 14. DynamoDB Local (NoSQL para ms-analytics-recommendations; en AWS real se usa Amazon DynamoDB)
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local
+    user: root
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
+    ports:
+      - "8000:8000"
+    volumes:
+      - dynamodb_data:/home/dynamodblocal/data
+    networks:
+      - pedidos360-network
+
+  # 15. Microservicio Analítica y Recomendaciones (Kafka -> DynamoDB -> WebSocket)
+  ms-analytics:
+    build:
+      context: ./ms-analytics-recommendations
+    container_name: ms-analytics
+    ports:
+      - "8089:8089"
+    environment:
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-78b145ef-56b9-4397-b87c-27b242a9fce5}
+      KAFKA_HOST: "kafka:29092"
+      # Para usar Amazon DynamoDB real: dejar DYNAMODB_ENDPOINT vacío y definir AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY / AWS_REGION
+      DYNAMODB_ENDPOINT: ${DYNAMODB_ENDPOINT-http://dynamodb-local:8000}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      ANALYTICS_WS_REQUIRE_AUTH: ${ANALYTICS_WS_REQUIRE_AUTH:-true}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      dynamodb-local:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8089/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
     networks:
       - pedidos360-network

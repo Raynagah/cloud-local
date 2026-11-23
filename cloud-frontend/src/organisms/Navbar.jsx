@@ -13,6 +13,9 @@ export function Navbar() {
                 <Link to="/dashboard" className="navbar__link">
                     Productos
                 </Link>
+                <Link to="/analitica" className="navbar__link">
+                    Analítica
+                </Link>
                 <Link to="/perfil" className="navbar__link">
                     Mi Perfil
                 </Link>

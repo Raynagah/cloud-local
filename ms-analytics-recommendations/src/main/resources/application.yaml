@@ -1,0 +1,43 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: ms-analytics-recommendations
+
+  # CONFIGURACIÓN DE SEGURIDAD (AZURE AD) - igual que el resto de microservicios
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://login.microsoftonline.com/
+          tenant-id: ${AZURE_TENANT_ID:78b145ef-56b9-4397-b87c-27b242a9fce5}
+
+  # CONFIGURACIÓN DE APACHE KAFKA (consumidor del pipeline de eventos)
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST:${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}}
+
+analytics:
+  kafka:
+    topic-eventos: user-events
+    topic-fraude: fraud-alerts
+    group-id: analytics-group
+  dynamodb:
+    # Vacío => AWS real (credenciales por la cadena por defecto: variables de entorno, rol IAM, etc.)
+    # Con valor (p. ej. http://dynamodb-local:8000) => DynamoDB Local para desarrollo.
+    endpoint: ${DYNAMODB_ENDPOINT:}
+    region: ${AWS_REGION:us-east-1}
+    table-prefix: ${DYNAMODB_TABLE_PREFIX:pedidos360_}
+  websocket:
+    # true => el handshake exige ?token=<JWT de Azure>. false => abierto (solo demos locales)
+    require-auth: ${ANALYTICS_WS_REQUIRE_AUTH:true}
+    interval-ms: 2000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always

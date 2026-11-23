@@ -1,6 +1,10 @@
 package com.backend.pagos.controller;
 
 import com.backend.pagos.service.PagosServices;
+import com.backend.pagos.service.AntifraudeService;
+import com.backend.pagos.dto.EvaluacionFraude;
+import com.backend.pagos.model.AlertaFraude;
+import com.backend.pagos.repository.AlertaFraudeRepositorio;
 import com.backend.pagos.dto.PeticionPagoDTO;
 import com.backend.pagos.dto.TransaccionRespuestaDTO;
 
@@ -12,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -20,20 +25,35 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class PagosController {
 
-    @Autowired 
+    @Autowired
     private PagosServices pagosServices;
+
+    @Autowired
+    private AntifraudeService antifraudeService;
+
+    @Autowired
+    private AlertaFraudeRepositorio alertaFraudeRepositorio;
+
+    /** Últimas 50 alertas antifraude registradas (para auditoría / demo). */
+    @GetMapping("/alertas")
+    public ResponseEntity<List<AlertaFraude>> listarAlertas() {
+        return ResponseEntity.ok(alertaFraudeRepositorio.findTop50ByOrderByDetectadoEnDesc());
+    }
 
     @PostMapping("/iniciar")
     public ResponseEntity<?> iniciarPago(@RequestBody PeticionPagoDTO peticion) {
-        // 1. El servicio evalúa si ya pasaron los 30 minutos de forma automática
-        if (pagosServices.verificarSiUsuarioEstaBloqueado(peticion.getClientId())) {
+        // 1. REGLA ANTIFRAUDE (síncrona y preventiva): >3 usos de la misma tarjeta en 10 s => bloqueo
+        String clave = AntifraudeService.construirClave(peticion.getTarjeta(), peticion.getClientId());
+        EvaluacionFraude evaluacion = antifraudeService.evaluarIntento(clave, peticion.getClientId());
+        if (evaluacion.bloqueado()) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(Map.of("message", "Demasiados intentos detectados. Estás bloqueado temporalmente por 30 minutos. Por favor, espera."));
+                    .body(Map.of("message", evaluacion.mensaje(),
+                                 "bloqueadoHasta", String.valueOf(evaluacion.bloqueadoHasta())));
         }
 
-        // 2. Si ya pasó el tiempo (o nunca se bloqueó), produce el evento a Kafka
+        // 2. Se publica el intento en Kafka (analítica del comportamiento de pago)
         pagosServices.producirIntentoPago(peticion.getClientId(), peticion.getAmount(), peticion.getTransactionId());
-        
+
         try {
             // Iniciar transacción en WebPay (Redirige al frontend en el callback)
             TransaccionRespuestaDTO transaccionWebpay = pagosServices.iniciarTransaccionWebpay(
