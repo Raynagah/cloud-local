@@ -7,6 +7,7 @@ import java.util.List;
 public interface UsuarioBffService {
     UsuarioDTO loginSSO(SsoLoginRequestDTO dto);
     UsuarioDTO registrarUsuario(UsuarioRequestDTO dto);
+    UsuarioDTO obtenerMiPerfil();
     UsuarioDTO obtenerPerfil(Long id);
     List<UsuarioDTO> listarUsuarios();
     UsuarioDTO actualizarPerfil(Long id, UsuarioPerfilUpdateDTO dto);

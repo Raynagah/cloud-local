@@ -15,6 +15,7 @@ import { DetalleOrdenPage } from './pages/DetalleOrdenPage';
 import { EditProfilePage } from './pages/EditProfilePage';
 import { CallbackWebpayPage } from './pages/CallbackWebpayPage'; 
 import { AnaliticaPage } from './pages/AnaliticaPage';
+import { AdminRoute } from './templates/AdminRoute';
 
 function App() {
   const isAuthenticated = useIsAuthenticated();
@@ -32,7 +33,7 @@ function App() {
         {/* Rutas protegidas envueltas en el Layout (Navbar incluido) */}
         <Route element={isAuthenticated ? <MainLayout /> : <Navigate to="/" />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/analitica" element={<AnaliticaPage />} />
+            <Route path="/analitica" element={<AdminRoute><AnaliticaPage /></AdminRoute>} />
             <Route path="/perfil" element={<PerfilPage />} />
             <Route path="/notificaciones" element={<NotificacionesPage />} />
             <Route path="/editar-perfil" element={<EditProfilePage />} />

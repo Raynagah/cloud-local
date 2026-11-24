@@ -31,6 +31,14 @@ microservicios:
     url: ${MS_DESPACHOS_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8087}}
   analytics:
     url: ${MS_ANALYTICS_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8089}}
+  pagos:
+    url: ${MS_PAGOS_URL:${AWS_BACKEND_GATEWAY_URL:http://localhost:8088}}
+
+# Orígenes del frontend autorizados por CORS (separados por coma).
+# En AWS: definir CORS_ALLOWED_ORIGINS con la URL real del frontend.
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost,http://localhost:5173,https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com}
 
 springdoc:
   show-actuator: true

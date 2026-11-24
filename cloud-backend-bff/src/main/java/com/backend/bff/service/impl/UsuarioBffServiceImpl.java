@@ -28,6 +28,11 @@ public class UsuarioBffServiceImpl implements UsuarioBffService {
     }
 
     @Override
+    public UsuarioDTO obtenerMiPerfil() {
+        return usuarioClient.obtenerMiPerfil();
+    }
+
+    @Override
     public UsuarioDTO obtenerPerfil(Long id) {
         return usuarioClient.obtenerPorId(id);
     }

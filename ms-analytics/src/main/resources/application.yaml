@@ -28,6 +28,15 @@ analytics:
     endpoint: ${DYNAMODB_ENDPOINT:}
     region: ${AWS_REGION:us-east-1}
     table-prefix: ${DYNAMODB_TABLE_PREFIX:pedidos360_}
+  cors:
+    # Orígenes del frontend permitidos (REST y handshake del WebSocket), separados por coma.
+    # En AWS: definir ANALYTICS_ALLOWED_ORIGINS con la URL real del frontend.
+    allowed-origins: ${ANALYTICS_ALLOWED_ORIGINS:http://localhost,http://localhost:5173,https://n2mnxks3b7.execute-api.us-east-1.amazonaws.com}
+  usuarios:
+    # ms-usuarios es la fuente de verdad del rol. En AWS: IP privada de la EC2 donde corre ms-usuarios.
+    url: ${USUARIOS_URL:http://localhost:8081}
+  admin:
+    cache-seconds: ${ANALYTICS_ADMIN_CACHE_SECONDS:60}
   websocket:
     # true => el handshake exige ?token=<JWT de Azure>. false => abierto (solo demos locales)
     require-auth: ${ANALYTICS_WS_REQUIRE_AUTH:true}

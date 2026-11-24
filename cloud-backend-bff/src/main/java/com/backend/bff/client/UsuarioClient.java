@@ -16,6 +16,10 @@ public interface UsuarioClient {
     @GetMapping("/api/usuarios")
     List<UsuarioDTO> listar();
 
+    // Usuario dueño del token (incluye rol real desde la BD)
+    @GetMapping("/api/usuarios/me")
+    UsuarioDTO obtenerMiPerfil();
+
     @GetMapping("/api/usuarios/{id}")
     UsuarioDTO obtenerPorId(@PathVariable("id") Long id);
 

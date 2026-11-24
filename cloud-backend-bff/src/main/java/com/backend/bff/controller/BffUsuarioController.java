@@ -37,6 +37,12 @@ public class BffUsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.registrarUsuario(dto));
     }
 
+    // Debe declararse como ruta literal: el rol lo decide ms-usuarios, el frontend solo lo consulta
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioDTO> miPerfil() {
+        return ResponseEntity.ok(usuarioService.obtenerMiPerfil());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioDTO> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.obtenerPerfil(id));

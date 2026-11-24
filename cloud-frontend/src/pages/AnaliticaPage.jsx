@@ -19,6 +19,7 @@ export function AnaliticaPage() {
     const wsRef = useRef(null);
     const reintentoRef = useRef(null);
     const activoRef = useRef(true);
+    const fallosRef = useRef(0);
 
     useEffect(() => {
         activoRef.current = true;
@@ -33,7 +34,8 @@ export function AnaliticaPage() {
             const ws = new WebSocket(`${ANALYTICS_WS_URL}?token=${encodeURIComponent(token)}`);
             wsRef.current = ws;
 
-            ws.onopen = () => setEstado('conectado');
+            let abierto = false;
+            ws.onopen = () => { abierto = true; fallosRef.current = 0; setEstado('conectado'); };
             ws.onmessage = (ev) => {
                 try {
                     setMetricas(JSON.parse(ev.data));
@@ -42,6 +44,12 @@ export function AnaliticaPage() {
                 }
             };
             ws.onclose = () => {
+                // Cerrado antes de abrir = handshake rechazado (401/403) o servidor caído
+                if (!abierto) fallosRef.current += 1;
+                if (fallosRef.current >= 3) {
+                    setEstado('rechazado');
+                    return;
+                }
                 setEstado('desconectado');
                 // reconexión automática cada 3 s mientras la página siga abierta
                 if (activoRef.current) {
@@ -68,7 +76,7 @@ export function AnaliticaPage() {
             <div className="analitica__header">
                 <h1 className="analitica__title">Analítica en tiempo real 📊</h1>
                 <span className={`analitica__estado analitica__estado--${estado}`}>
-                    ● {estado === 'conectado' ? 'En vivo' : estado === 'conectando' ? 'Conectando…' : 'Reconectando…'}
+                    ● {estado === 'conectado' ? 'En vivo' : estado === 'conectando' ? 'Conectando…' : estado === 'rechazado' ? 'Sin acceso al servicio' : 'Reconectando…'}
                 </span>
             </div>
 

@@ -38,3 +38,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+pagos:
+  webpay:
+    # Debe apuntar a la página /callback del frontend (en AWS: la URL pública real)
+    return-url: ${PAGOS_WEBPAY_RETURN_URL:http://localhost/desarrollo/callback}

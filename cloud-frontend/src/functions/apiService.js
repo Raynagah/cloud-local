@@ -4,7 +4,6 @@ import axios from 'axios';
 // Si usas Create React App usa process.env.REACT_APP_BFF_URL
 // Si usas Vite usa import.meta.env.VITE_BFF_URL
 const BFF_BASE_URL = import.meta.env.VITE_BFF_URL || "http://localhost:8084/api/v1/bff";
-const MS_PAGOS_URL = "http://localhost:8088/api/pagos";
 
 // 2. Crear la instancia global de Axios
 const apiClient = axios.create({
@@ -36,6 +35,12 @@ export const loginBackend = async (correo, token) => {
     return await apiClient.post('/usuarios/login', { correo }, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
+};
+
+// Usuario dueño del token con su rol REAL (lo decide el servidor). Úsalo para autorizar la UI;
+// el rol guardado en localStorage es solo informativo y el usuario puede modificarlo.
+export const getMe = async () => {
+    return await apiClient.get('/usuarios/me');
 };
 
 export const registrarUsuario = async (usuarioData, token) => {
@@ -108,10 +113,11 @@ export const eliminarNotificacion = async (id) => {
     return await apiClient.delete(`/notificaciones/${id}`);
 };
 
+// --- PAGOS (siempre a través del BFF) ---
 export const iniciarPagoWebpay = async (peticionData) => {
-    return await axios.post(`${MS_PAGOS_URL}/iniciar`, peticionData);
+    return await apiClient.post('/pagos/iniciar', peticionData);
 };
 
 export const confirmarPagoWebpay = async (tokenWs) => {
-    return await axios.post(`${MS_PAGOS_URL}/commit?token_ws=${tokenWs}`);
+    return await apiClient.post('/pagos/commit', null, { params: { token_ws: tokenWs } });
 };

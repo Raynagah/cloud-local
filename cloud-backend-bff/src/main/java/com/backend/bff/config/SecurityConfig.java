@@ -27,6 +27,9 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.resourceserver.jwt.tenant-id}")
     private String tenantId;
 
+    @Value("${app.cors.allowed-origins}")
+    private String[] origenesPermitidos;
+
     @Bean
     public JwtDecoder jwtDecoder() {
         String jwkSetUri = "https://login.microsoftonline.com/" + tenantId + "/discovery/v2.0/keys";
@@ -37,7 +40,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedOriginPatterns(List.of(origenesPermitidos));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowCredentials(true);

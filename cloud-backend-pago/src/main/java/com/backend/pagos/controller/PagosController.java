@@ -22,8 +22,11 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/pagos")
-@CrossOrigin(origins = "*")
 public class PagosController {
+
+    // URL a la que Webpay devuelve al usuario tras pagar (página del frontend)
+    @org.springframework.beans.factory.annotation.Value("${pagos.webpay.return-url:http://localhost/desarrollo/callback}")
+    private String returnUrl;
 
     @Autowired
     private PagosServices pagosServices;
@@ -60,7 +63,7 @@ public class PagosController {
                     peticion.getTransactionId(),
                     peticion.getClientId(),
                     peticion.getAmount().doubleValue(),
-                    "http://localhost/desarrollo/callback"
+                    returnUrl
             );
             
             return ResponseEntity.ok(Map.of(
